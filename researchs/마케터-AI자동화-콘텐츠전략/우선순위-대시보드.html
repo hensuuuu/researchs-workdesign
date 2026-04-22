@@ -147,6 +147,7 @@
   <button class="tab" onclick="showPanel(1)">블루오션 분석</button>
   <button class="tab" onclick="showPanel(2)">v2→v3 순위 변동</button>
   <button class="tab" onclick="showPanel(3)">SNS 콘텐츠 전략</button>
+  <button class="tab" onclick="showPanel(4)">직군별 분류</button>
 </div>
 
 <!-- 패널 0: TOP 10 -->
@@ -514,6 +515,109 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- 패널 4: 직군별 분류 -->
+<div class="panel" id="panel-4">
+  <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:16px;">
+
+    <!-- 직군별 요약 -->
+    <div class="card" style="grid-column:1/-1;">
+      <div class="card-title">직군별 총점 순위</div>
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px;">
+        <div style="background:#0f0f13; border-radius:10px; padding:16px; border-top:3px solid #6366f1;">
+          <div style="font-size:10px; color:#64748b; margin-bottom:6px;">평균 1위</div>
+          <div style="font-size:14px; font-weight:800; color:#6366f1; margin-bottom:4px;">마케팅 자동화</div>
+          <div style="font-size:22px; font-weight:800; color:#e2e8f0;">60.3점</div>
+          <div style="font-size:10px; color:#64748b; margin-top:4px;">13개 주제 · 합산 784점</div>
+        </div>
+        <div style="background:#0f0f13; border-radius:10px; padding:16px; border-top:3px solid #22d3ee;">
+          <div style="font-size:10px; color:#64748b; margin-bottom:6px;">총점 1위</div>
+          <div style="font-size:14px; font-weight:800; color:#22d3ee; margin-bottom:4px;">기획자/PM</div>
+          <div style="font-size:22px; font-weight:800; color:#e2e8f0;">57.9점</div>
+          <div style="font-size:10px; color:#64748b; margin-top:4px;">15개 주제 · 합산 869점</div>
+        </div>
+        <div style="background:#0f0f13; border-radius:10px; padding:16px; border-top:3px solid #f59e0b;">
+          <div style="font-size:10px; color:#64748b; margin-bottom:6px;">3위</div>
+          <div style="font-size:14px; font-weight:800; color:#f59e0b; margin-bottom:4px;">콘텐츠 마케터</div>
+          <div style="font-size:22px; font-weight:800; color:#e2e8f0;">57.0점</div>
+          <div style="font-size:10px; color:#64748b; margin-top:4px;">12개 주제 · 합산 684점</div>
+        </div>
+        <div style="background:#0f0f13; border-radius:10px; padding:16px; border-top:3px solid #10b981;">
+          <div style="font-size:10px; color:#64748b; margin-bottom:6px;">4위</div>
+          <div style="font-size:14px; font-weight:800; color:#10b981; margin-bottom:4px;">퍼포먼스 마케터</div>
+          <div style="font-size:22px; font-weight:800; color:#e2e8f0;">57.5점</div>
+          <div style="font-size:10px; color:#64748b; margin-top:4px;">10개 주제 · 합산 575점</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 마케팅 자동화 -->
+    <div class="card">
+      <div class="card-title" style="color:#6366f1;">마케팅 자동화 담당 — 평균 60.3점</div>
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #6366f1;"><span style="font-size:11px; color:#94a3b8;">n8n 콘텐츠 1→10 자동 분해</span><span style="font-size:12px; font-weight:700; color:#6366f1;">80</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #6366f1;"><span style="font-size:11px; color:#94a3b8;">n8n 트렌드 → SNS 완전 자동화</span><span style="font-size:12px; font-weight:700; color:#6366f1;">77</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #6366f1;"><span style="font-size:11px; color:#94a3b8;">Claude + n8n 경쟁사 보고서 자동 생성</span><span style="font-size:12px; font-weight:700; color:#6366f1;">76</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #6366f1;"><span style="font-size:11px; color:#94a3b8;">멀티 AI 오케스트레이션 허브</span><span style="font-size:12px; font-weight:700; color:#6366f1;">68</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #6366f1;"><span style="font-size:11px; color:#94a3b8;">AI 에이전트 반복 업무 TOP10 자동화</span><span style="font-size:12px; font-weight:700; color:#6366f1;">66</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #6366f1;"><span style="font-size:11px; color:#94a3b8;">n8n 시즌 캠페인 브리프 자동화</span><span style="font-size:12px; font-weight:700; color:#6366f1;">62</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #6366f1;"><span style="font-size:11px; color:#94a3b8;">Make + Slack 승인 프로세스 자동화</span><span style="font-size:12px; font-weight:700; color:#6366f1;">61</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #6366f1;"><span style="font-size:11px; color:#94a3b8;">Notion AI + Make 대시보드 자동화</span><span style="font-size:12px; font-weight:700; color:#6366f1;">59</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #6366f1;"><span style="font-size:11px; color:#94a3b8;">KPI 이상 징후 실시간 감지 알림</span><span style="font-size:12px; font-weight:700; color:#6366f1;">59</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #6366f1;"><span style="font-size:11px; color:#94a3b8;">브랜드 언급량 모니터링 슬랙 알림</span><span style="font-size:12px; font-weight:700; color:#6366f1;">59</span></div>
+      </div>
+    </div>
+
+    <!-- 기획자/PM -->
+    <div class="card">
+      <div class="card-title" style="color:#22d3ee;">기획자/PM — 평균 57.9점</div>
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #22d3ee;"><span style="font-size:11px; color:#94a3b8;">n8n 회의록 자동 정리 + Notion 배분</span><span style="font-size:12px; font-weight:700; color:#22d3ee;">83</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #22d3ee;"><span style="font-size:11px; color:#94a3b8;">주간 업무 보고서 Claude 3분 완성</span><span style="font-size:12px; font-weight:700; color:#22d3ee;">66</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #22d3ee;"><span style="font-size:11px; color:#94a3b8;">고객 인터뷰 → 인사이트 보고서 10분</span><span style="font-size:12px; font-weight:700; color:#22d3ee;">63</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #22d3ee;"><span style="font-size:11px; color:#94a3b8;">신제품 론칭 캠페인 전략서 2시간</span><span style="font-size:12px; font-weight:700; color:#22d3ee;">60</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #22d3ee;"><span style="font-size:11px; color:#94a3b8;">경쟁사 광고 100개 분석 전략 보고서</span><span style="font-size:12px; font-weight:700; color:#22d3ee;">60</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #22d3ee;"><span style="font-size:11px; color:#94a3b8;">시장조사 보고서 3일→3시간</span><span style="font-size:12px; font-weight:700; color:#22d3ee;">60</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #22d3ee;"><span style="font-size:11px; color:#94a3b8;">Gamma + Claude 기획안 PPT</span><span style="font-size:12px; font-weight:700; color:#22d3ee;">59</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #22d3ee;"><span style="font-size:11px; color:#94a3b8;">고객 페르소나 5개 + 채널별 메시지</span><span style="font-size:12px; font-weight:700; color:#22d3ee;">59</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #22d3ee;"><span style="font-size:11px; color:#94a3b8;">GA4 + Gemini 월간 성과 보고서</span><span style="font-size:12px; font-weight:700; color:#22d3ee;">58</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #22d3ee;"><span style="font-size:11px; color:#94a3b8;">분기별 성과 보고서 자동 완성</span><span style="font-size:12px; font-weight:700; color:#22d3ee;">56</span></div>
+      </div>
+    </div>
+
+    <!-- 퍼포먼스 마케터 -->
+    <div class="card">
+      <div class="card-title" style="color:#10b981;">퍼포먼스 마케터 — 평균 57.5점</div>
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #10b981;"><span style="font-size:11px; color:#94a3b8;">광고 데이터 10만 행 분석 + 예산 낭비 탐지</span><span style="font-size:12px; font-weight:700; color:#10b981;">79</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #10b981;"><span style="font-size:11px; color:#94a3b8;">GA4 전환율 하락 자동 진단</span><span style="font-size:12px; font-weight:700; color:#10b981;">64</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #10b981;"><span style="font-size:11px; color:#94a3b8;">고객 후기 → 소셜프루프 카피 파이프라인</span><span style="font-size:12px; font-weight:700; color:#10b981;">57</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #10b981;"><span style="font-size:11px; color:#94a3b8;">Code Interpreter 마케팅 엑셀 분석</span><span style="font-size:12px; font-weight:700; color:#10b981;">49</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #10b981;"><span style="font-size:11px; color:#94a3b8;">퍼널 전환 병목 자동 탐지</span><span style="font-size:12px; font-weight:700; color:#10b981;">42</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #10b981;"><span style="font-size:11px; color:#94a3b8;">고객 LTV 예측 모델 + 세그먼트 분류</span><span style="font-size:12px; font-weight:700; color:#10b981;">42</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #10b981;"><span style="font-size:11px; color:#94a3b8;">A/B 테스트 결과 통계 해석 자동화</span><span style="font-size:12px; font-weight:700; color:#10b981;">37</span></div>
+      </div>
+    </div>
+
+    <!-- 콘텐츠 마케터 -->
+    <div class="card">
+      <div class="card-title" style="color:#f59e0b;">콘텐츠 마케터 — 평균 57.0점</div>
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #f59e0b;"><span style="font-size:11px; color:#94a3b8;">메타 광고 카피 20가지 변형 5분 생성</span><span style="font-size:12px; font-weight:700; color:#f59e0b;">79</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #f59e0b;"><span style="font-size:11px; color:#94a3b8;">이메일 제목 100개 + 오픈율 Top 5</span><span style="font-size:12px; font-weight:700; color:#f59e0b;">71</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #f59e0b;"><span style="font-size:11px; color:#94a3b8;">SNS 콘텐츠 캘린더 2시간 완성</span><span style="font-size:12px; font-weight:700; color:#f59e0b;">67</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #f59e0b;"><span style="font-size:11px; color:#94a3b8;">인스타 릴스 스크립트 → 편집 지시서</span><span style="font-size:12px; font-weight:700; color:#f59e0b;">63</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #f59e0b;"><span style="font-size:11px; color:#94a3b8;">브랜드 AI 카피 자동 생성</span><span style="font-size:12px; font-weight:700; color:#f59e0b;">60</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #f59e0b;"><span style="font-size:11px; color:#94a3b8;">AIDA 랜딩페이지 카피 자동 완성</span><span style="font-size:12px; font-weight:700; color:#f59e0b;">55</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #f59e0b;"><span style="font-size:11px; color:#94a3b8;">LinkedIn 팔로워 3배 AI 글쓰기</span><span style="font-size:12px; font-weight:700; color:#f59e0b;">55</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #f59e0b;"><span style="font-size:11px; color:#94a3b8;">인스타 댓글 자동 분석 + 답변 초안</span><span style="font-size:12px; font-weight:700; color:#f59e0b;">50</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #f59e0b;"><span style="font-size:11px; color:#94a3b8;">SNS 카드뉴스 10장 30분 제작</span><span style="font-size:12px; font-weight:700; color:#f59e0b;">49</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#0f0f13; border-radius:6px; border-left:2px solid #f59e0b;"><span style="font-size:11px; color:#94a3b8;">숏폼 바이럴 공식 역공학</span><span style="font-size:12px; font-weight:700; color:#f59e0b;">45</span></div>
+      </div>
+    </div>
+
   </div>
 </div>
 
