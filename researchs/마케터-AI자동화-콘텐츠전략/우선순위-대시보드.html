@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 자동화 콘텐츠 우선순위 대시보드 v2</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: #0f0f13; color: #e2e8f0; min-height: 100vh; }
+
+  .header { padding: 40px 40px 20px; border-bottom: 1px solid #1e1e2e; display: flex; justify-content: space-between; align-items: flex-end; }
+  .header h1 { font-size: 22px; font-weight: 700; color: #fff; }
+  .header p { font-size: 13px; color: #64748b; margin-top: 6px; }
+  .badge { background: #1e1e2e; border: 1px solid #334155; border-radius: 6px; padding: 4px 10px; font-size: 11px; color: #64748b; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; padding: 24px 40px; }
+  .kpi { background: #16161f; border: 1px solid #1e1e2e; border-radius: 12px; padding: 18px; }
+  .kpi-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+  .kpi-value { font-size: 24px; font-weight: 800; margin-top: 6px; }
+  .kpi-sub { font-size: 10px; color: #64748b; margin-top: 3px; }
+  .c1 { color: #6366f1; } .c2 { color: #22d3ee; } .c3 { color: #f59e0b; }
+  .c4 { color: #10b981; } .c5 { color: #f43f5e; } .c6 { color: #a78bfa; }
+
+  .main { display: grid; grid-template-columns: 1fr 1fr 340px; gap: 18px; padding: 0 40px 40px; }
+
+  .card { background: #16161f; border: 1px solid #1e1e2e; border-radius: 12px; padding: 22px; }
+  .card-title { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 18px; }
+
+  .bar-list { display: flex; flex-direction: column; gap: 11px; }
+  .bar-item { display: flex; align-items: center; gap: 10px; }
+  .bar-rank { font-size: 10px; font-weight: 700; color: #475569; width: 16px; text-align: right; flex-shrink: 0; }
+  .bar-info { flex: 1; min-width: 0; }
+  .bar-label { font-size: 11px; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+  .bar-meta { display: flex; gap: 6px; margin-bottom: 5px; }
+  .pill { font-size: 9px; padding: 1px 6px; border-radius: 10px; font-weight: 600; }
+  .pill-blue { background: #1e3a5f; color: #60a5fa; }
+  .pill-green { background: #064e3b; color: #34d399; }
+  .pill-yellow { background: #3b2f00; color: #fbbf24; }
+  .bar-track { height: 5px; background: #1e293b; border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; }
+  .bar-score { font-size: 12px; font-weight: 700; width: 28px; text-align: right; flex-shrink: 0; }
+
+  .g1 { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+  .g2 { background: linear-gradient(90deg, #22d3ee, #06b6d4); }
+  .g3 { background: linear-gradient(90deg, #f59e0b, #f97316); }
+  .g4 { background: linear-gradient(90deg, #10b981, #14b8a6); }
+  .g5 { background: linear-gradient(90deg, #3b82f6, #6366f1); }
+
+  /* 제작난이도 그리드 */
+  .diff-section { margin-bottom: 16px; }
+  .diff-title { font-size: 10px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .diff-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .diff-items { display: flex; flex-direction: column; gap: 5px; }
+  .diff-item { display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; background: #0f0f13; border-radius: 6px; }
+  .diff-name { font-size: 11px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+  .diff-pts { font-size: 12px; font-weight: 700; flex-shrink: 0; }
+
+  /* 가중치 */
+  .weight-list { display: flex; flex-direction: column; gap: 9px; }
+  .weight-item { }
+  .weight-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+  .weight-name { font-size: 11px; color: #94a3b8; }
+  .weight-pts { font-size: 11px; font-weight: 700; }
+  .weight-bar { height: 6px; background: #1e293b; border-radius: 3px; overflow: hidden; }
+  .weight-fill { height: 100%; border-radius: 3px; }
+  .w1 { background: #6366f1; } .w2 { background: #22d3ee; } .w3 { background: #f59e0b; }
+  .w4 { background: #10b981; } .w5 { background: #f43f5e; } .w6 { background: #a78bfa; }
+
+  /* 인사이트 */
+  .insight { padding: 11px 13px; background: #0f0f13; border-radius: 8px; border-left: 3px solid; font-size: 11px; line-height: 1.6; color: #94a3b8; margin-bottom: 8px; }
+  .insight strong { color: #e2e8f0; display: block; margin-bottom: 2px; font-size: 11px; }
+
+  .right-col { display: flex; flex-direction: column; gap: 18px; }
+
+  .footer { padding: 16px 40px; border-top: 1px solid #1e1e2e; font-size: 10px; color: #334155; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>AI 자동화 콘텐츠 우선순위 대시보드</h1>
+    <p>타겟: 한국 직장인 마케터/기획자 &nbsp;·&nbsp; 기준일: 2026-04-22</p>
+  </div>
+  <span class="badge">v2 — 제작난이도 기준 추가</span>
+</div>
+
+<div class="kpi-row">
+  <div class="kpi"><div class="kpi-label">분석 주제</div><div class="kpi-value c1">50개</div><div class="kpi-sub">6개 카테고리</div></div>
+  <div class="kpi"><div class="kpi-label">최고 점수</div><div class="kpi-value c2">86점</div><div class="kpi-sub">n8n 콘텐츠 분해</div></div>
+  <div class="kpi"><div class="kpi-label">즉시 제작 가능</div><div class="kpi-value c4">7개</div><div class="kpi-sub">더미 AI 즉시 생성</div></div>
+  <div class="kpi"><div class="kpi-label">블루오션</div><div class="kpi-value c3">8개</div><div class="kpi-sub">희소성 만점 주제</div></div>
+  <div class="kpi"><div class="kpi-label">핵심 키워드</div><div class="kpi-value c6">n8n</div><div class="kpi-sub">TOP 5 중 3개</div></div>
+  <div class="kpi"><div class="kpi-label">평균 점수</div><div class="kpi-value c5">58점</div><div class="kpi-sub">TOP 10 평균 74점</div></div>
+</div>
+
+<div class="main">
+
+  <!-- TOP 10 -->
+  <div class="card">
+    <div class="card-title">TOP 10 우선순위</div>
+    <div class="bar-list">
+
+      <div class="bar-item">
+        <div class="bar-rank">1</div>
+        <div class="bar-info">
+          <div class="bar-label">n8n + ChatGPT 유튜브 1개 → 콘텐츠 10개 자동 분해</div>
+          <div class="bar-meta"><span class="pill pill-blue">블루오션</span><span class="pill pill-yellow">n8n</span></div>
+          <div class="bar-track"><div class="bar-fill g1" style="width:86%"></div></div>
+        </div>
+        <div class="bar-score c1">86</div>
+      </div>
+
+      <div class="bar-item">
+        <div class="bar-rank">2</div>
+        <div class="bar-info">
+          <div class="bar-label">n8n 회의록 자동 정리 + 팀 Notion 자동 배분</div>
+          <div class="bar-meta"><span class="pill pill-blue">블루오션</span><span class="pill pill-yellow">n8n</span></div>
+          <div class="bar-track"><div class="bar-fill g2" style="width:83%"></div></div>
+        </div>
+        <div class="bar-score c2">83</div>
+      </div>
+
+      <div class="bar-item">
+        <div class="bar-rank">3</div>
+        <div class="bar-info">
+          <div class="bar-label">n8n 트렌드 감지 → SNS 발행 완전 자동화 파이프라인</div>
+          <div class="bar-meta"><span class="pill pill-blue">블루오션</span><span class="pill pill-yellow">n8n</span></div>
+          <div class="bar-track"><div class="bar-fill g2" style="width:83%"></div></div>
+        </div>
+        <div class="bar-score c2">83</div>
+      </div>
+
+      <div class="bar-item">
+        <div class="bar-rank">4</div>
+        <div class="bar-info">
+          <div class="bar-label">Claude + n8n 경쟁사 5곳 주간 동향 보고서 자동 생성</div>
+          <div class="bar-meta"><span class="pill pill-yellow">n8n</span></div>
+          <div class="bar-track"><div class="bar-fill g3" style="width:76%"></div></div>
+        </div>
+        <div class="bar-score c3">76</div>
+      </div>
+
+      <div class="bar-item">
+        <div class="bar-rank">5</div>
+        <div class="bar-info">
+          <div class="bar-label">AI로 광고 데이터 10만 행 분석 + 예산 낭비 구간 자동 탐지</div>
+          <div class="bar-meta"><span class="pill pill-green">더미CSV</span></div>
+          <div class="bar-track"><div class="bar-fill g4" style="width:73%"></div></div>
+        </div>
+        <div class="bar-score c4">73</div>
+      </div>
+
+      <div class="bar-item">
+        <div class="bar-rank">6</div>
+        <div class="bar-info">
+          <div class="bar-label">AI 에이전트로 마케팅 팀 반복 업무 TOP 10 자동화 워크숍</div>
+          <div class="bar-meta"><span class="pill pill-blue">에이전틱</span></div>
+          <div class="bar-track"><div class="bar-fill g4" style="width:72%"></div></div>
+        </div>
+        <div class="bar-score c4">72</div>
+      </div>
+
+      <div class="bar-item">
+        <div class="bar-rank">7</div>
+        <div class="bar-info">
+          <div class="bar-label">Claude로 메타 광고 카피 20가지 변형 5분 생성 + A/B 설계</div>
+          <div class="bar-meta"><span class="pill pill-green">즉시제작</span></div>
+          <div class="bar-track"><div class="bar-fill g5" style="width:67%"></div></div>
+        </div>
+        <div class="bar-score" style="color:#3b82f6">67</div>
+      </div>
+
+      <div class="bar-item">
+        <div class="bar-rank">8</div>
+        <div class="bar-info">
+          <div class="bar-label">AI로 한 달치 SNS 콘텐츠 캘린더 2시간 완성 + Notion 정리</div>
+          <div class="bar-meta"></div>
+          <div class="bar-track"><div class="bar-fill g5" style="width:67%"></div></div>
+        </div>
+        <div class="bar-score" style="color:#3b82f6">67</div>
+      </div>
+
+      <div class="bar-item">
+        <div class="bar-rank">9</div>
+        <div class="bar-info">
+          <div class="bar-label">매주 주간 업무 보고서 Claude 프롬프트 하나로 3분 완성</div>
+          <div class="bar-meta"><span class="pill pill-green">즉시제작</span></div>
+          <div class="bar-track"><div class="bar-fill g5" style="width:66%"></div></div>
+        </div>
+        <div class="bar-score" style="color:#3b82f6">66</div>
+      </div>
+
+      <div class="bar-item">
+        <div class="bar-rank">10</div>
+        <div class="bar-info">
+          <div class="bar-label">ChatGPT 이메일 제목 100개 생성 + 오픈율 Top 5 자동 선별</div>
+          <div class="bar-meta"><span class="pill pill-green">즉시제작</span></div>
+          <div class="bar-track"><div class="bar-fill g5" style="width:65%"></div></div>
+        </div>
+        <div class="bar-score" style="color:#3b82f6">65</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 제작 난이도별 분류 -->
+  <div class="card">
+    <div class="card-title">제작 난이도별 분류</div>
+
+    <div class="diff-section">
+      <div class="diff-title"><div class="diff-dot" style="background:#10b981"></div><span style="color:#10b981">즉시 제작 (15점) — AI가 더미 즉시 생성</span></div>
+      <div class="diff-items">
+        <div class="diff-item"><div class="diff-name">메타 광고 카피 20가지 변형</div><div class="diff-pts c4">67</div></div>
+        <div class="diff-item"><div class="diff-name">주간 업무 보고서 3분 완성</div><div class="diff-pts c4">66</div></div>
+        <div class="diff-item"><div class="diff-name">이메일 제목 100개 + Top 5</div><div class="diff-pts c4">65</div></div>
+        <div class="diff-item"><div class="diff-name">고객 인터뷰 → 인사이트 보고서</div><div class="diff-pts c4">63</div></div>
+        <div class="diff-item"><div class="diff-name">고객 페르소나 5개 + 메시지 분기</div><div class="diff-pts c4">59</div></div>
+        <div class="diff-item"><div class="diff-name">Gamma + Claude 기획안 PPT</div><div class="diff-pts c4">59</div></div>
+        <div class="diff-item"><div class="diff-name">AIDA 랜딩페이지 카피 자동 완성</div><div class="diff-pts c4">55</div></div>
+      </div>
+    </div>
+
+    <div class="diff-section">
+      <div class="diff-title"><div class="diff-dot" style="background:#22d3ee"></div><span style="color:#22d3ee">쉬운 더미 (12점) — 간단한 CSV/텍스트</span></div>
+      <div class="diff-items">
+        <div class="diff-item"><div class="diff-name">n8n 콘텐츠 1→10 분해</div><div class="diff-pts c2">86</div></div>
+        <div class="diff-item"><div class="diff-name">n8n 회의록 자동 정리</div><div class="diff-pts c2">83</div></div>
+        <div class="diff-item"><div class="diff-name">n8n 트렌드 → SNS 자동화</div><div class="diff-pts c2">83</div></div>
+        <div class="diff-item"><div class="diff-name">SNS 콘텐츠 캘린더 2시간 완성</div><div class="diff-pts c2">67</div></div>
+        <div class="diff-item"><div class="diff-name">브랜드 AI 카피 자동 생성</div><div class="diff-pts c2">60</div></div>
+      </div>
+    </div>
+
+    <div class="diff-section">
+      <div class="diff-title"><div class="diff-dot" style="background:#f59e0b"></div><span style="color:#f59e0b">더미 복잡 (8점) — 구조 복잡한 샘플</span></div>
+      <div class="diff-items">
+        <div class="diff-item"><div class="diff-name">경쟁사 보고서 자동 생성</div><div class="diff-pts c3">76</div></div>
+        <div class="diff-item"><div class="diff-name">광고 데이터 10만 행 분석</div><div class="diff-pts c3">73</div></div>
+        <div class="diff-item"><div class="diff-name">AI 에이전트 반복 업무 워크숍</div><div class="diff-pts c3">72</div></div>
+      </div>
+    </div>
+
+    <div class="diff-section">
+      <div class="diff-title"><div class="diff-dot" style="background:#f43f5e"></div><span style="color:#f43f5e">실계정 필수 (2~5점)</span></div>
+      <div class="diff-items">
+        <div class="diff-item"><div class="diff-name">GA4 전환율 하락 진단</div><div class="diff-pts c5">64</div></div>
+        <div class="diff-item"><div class="diff-name">LTV 예측 모델</div><div class="diff-pts c5">42</div></div>
+        <div class="diff-item"><div class="diff-name">퍼널 병목 탐지</div><div class="diff-pts c5">42</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 오른쪽 -->
+  <div class="right-col">
+
+    <!-- 가중치 -->
+    <div class="card">
+      <div class="card-title">점수 기준 가중치 (v2)</div>
+      <div class="weight-list">
+        <div class="weight-item">
+          <div class="weight-row"><span class="weight-name">검색 수요 볼륨</span><span class="weight-pts c1">25점</span></div>
+          <div class="weight-bar"><div class="weight-fill w1" style="width:100%"></div></div>
+        </div>
+        <div class="weight-item">
+          <div class="weight-row"><span class="weight-name">바이럴 포맷 적합도</span><span class="weight-pts c2">20점</span></div>
+          <div class="weight-bar"><div class="weight-fill w2" style="width:80%"></div></div>
+        </div>
+        <div class="weight-item">
+          <div class="weight-row"><span class="weight-name">한국 공급 희소성</span><span class="weight-pts c3">18점</span></div>
+          <div class="weight-bar"><div class="weight-fill w3" style="width:72%"></div></div>
+        </div>
+        <div class="weight-item">
+          <div class="weight-row"><span class="weight-name">제작 난이도 (더미 가능성)</span><span class="weight-pts c6">15점</span></div>
+          <div class="weight-bar"><div class="weight-fill w6" style="width:60%"></div></div>
+        </div>
+        <div class="weight-item">
+          <div class="weight-row"><span class="weight-name">타겟 실무 연관성</span><span class="weight-pts c4">12점</span></div>
+          <div class="weight-bar"><div class="weight-fill w4" style="width:48%"></div></div>
+        </div>
+        <div class="weight-item">
+          <div class="weight-row"><span class="weight-name">시의성 & 모멘텀</span><span class="weight-pts c5">10점</span></div>
+          <div class="weight-bar"><div class="weight-fill w5" style="width:40%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 도넛 차트 -->
+    <div class="card">
+      <div class="card-title">가중치 분포</div>
+      <div style="position:relative; width:150px; height:150px; margin: 0 auto;">
+        <canvas id="donut"></canvas>
+      </div>
+    </div>
+
+    <!-- 핵심 인사이트 -->
+    <div class="card">
+      <div class="card-title">전략 인사이트</div>
+      <div class="insight" style="border-color:#6366f1">
+        <strong>2트랙 전략 추천</strong>
+        즉시제작 주제(카피/보고서)로 빠르게 콘텐츠 쌓고, n8n 블루오션으로 채널 장악
+      </div>
+      <div class="insight" style="border-color:#f59e0b">
+        <strong>n8n이 핵심 킬러 키워드</strong>
+        TOP 5 중 3개가 n8n. 한국어 콘텐츠 희소성(18점) + 에이전틱 모멘텀(10점) 동시 충족
+      </div>
+      <div class="insight" style="border-color:#10b981">
+        <strong>제작난이도 추가 후 변화</strong>
+        카피라이팅 주제 상위 급부상. GA4 연동 주제는 실계정 필요로 하락. 즉시 뽑을 수 있는 주제가 명확해짐
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">
+  데이터 출처: 2026년 1~4월 발행 자료 기반 (theegg.com, openads.co.kr, air.io, linkboost.co, raylogue.com 외 18개 출처)
+</div>
+
+<script>
+new Chart(document.getElementById('donut').getContext('2d'), {
+  type: 'doughnut',
+  data: {
+    labels: ['검색수요', '바이럴포맷', '공급희소성', '제작난이도', '실무연관성', '모멘텀'],
+    datasets: [{
+      data: [25, 20, 18, 15, 12, 10],
+      backgroundColor: ['#6366f1','#22d3ee','#f59e0b','#a78bfa','#10b981','#f43f5e'],
+      borderWidth: 0, hoverOffset: 4
+    }]
+  },
+  options: {
+    cutout: '65%',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: { label: (c) => ` ${c.label}: ${c.raw}점` },
+        backgroundColor: '#1e293b', titleColor: '#e2e8f0',
+        bodyColor: '#94a3b8', borderColor: '#334155', borderWidth: 1
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
