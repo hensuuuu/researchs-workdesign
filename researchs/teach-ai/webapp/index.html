@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 실무 커리큘럼</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, sans-serif;
+      background: #0f0f0f;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    /* 레이아웃 */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* 사이드바 */
+    .sidebar {
+      width: 260px;
+      background: #1a1a1a;
+      border-right: 1px solid #2a2a2a;
+      padding: 24px 0;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      overflow-y: auto;
+    }
+
+    .sidebar-logo {
+      padding: 0 20px 24px;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    .sidebar-logo h1 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.4;
+    }
+
+    .sidebar-logo p {
+      font-size: 11px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .sidebar-nav {
+      padding: 16px 0;
+    }
+
+    .phase-group {
+      margin-bottom: 4px;
+    }
+
+    .phase-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s;
+      border-radius: 0;
+    }
+
+    .phase-btn:hover { background: #252525; }
+    .phase-btn.active { background: #1e3a5f; }
+
+    .phase-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .phase-icon.done { background: #1a4731; color: #4ade80; }
+    .phase-icon.active-icon { background: #1e3a5f; color: #60a5fa; }
+    .phase-icon.locked { background: #2a2a2a; color: #555; }
+
+    .phase-label {
+      flex: 1;
+    }
+
+    .phase-label-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #ccc;
+      line-height: 1.3;
+    }
+
+    .phase-label-sub {
+      font-size: 10px;
+      color: #555;
+      margin-top: 2px;
+    }
+
+    .phase-progress-bar {
+      width: 100%;
+      height: 2px;
+      background: #2a2a2a;
+      margin: 0 20px;
+      width: calc(100% - 40px);
+      border-radius: 1px;
+      overflow: hidden;
+    }
+
+    .phase-progress-fill {
+      height: 100%;
+      background: #3b82f6;
+      border-radius: 1px;
+      transition: width 0.3s;
+    }
+
+    /* 메인 */
+    .main {
+      margin-left: 260px;
+      flex: 1;
+      padding: 40px;
+      max-width: 820px;
+    }
+
+    /* 대시보드 */
+    .dashboard {
+      display: none;
+    }
+
+    .dashboard.visible { display: block; }
+
+    .dash-header {
+      margin-bottom: 32px;
+    }
+
+    .dash-header h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .dash-header p {
+      color: #666;
+      margin-top: 6px;
+      font-size: 14px;
+    }
+
+    .phase-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .phase-card {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.1s;
+    }
+
+    .phase-card:hover {
+      border-color: #3b82f6;
+      transform: translateY(-1px);
+    }
+
+    .phase-card.completed {
+      border-color: #1a4731;
+    }
+
+    .card-phase-num {
+      font-size: 11px;
+      color: #555;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 8px;
+      line-height: 1.3;
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: #666;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    .card-progress {
+      margin-top: 16px;
+    }
+
+    .card-progress-bar {
+      height: 4px;
+      background: #2a2a2a;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .card-progress-fill {
+      height: 100%;
+      background: #3b82f6;
+      border-radius: 2px;
+      transition: width 0.3s;
+    }
+
+    .card-progress-text {
+      font-size: 11px;
+      color: #555;
+      margin-top: 6px;
+    }
+
+    /* 페이지 */
+    .page {
+      display: none;
+    }
+
+    .page.visible { display: block; }
+
+    .page-header {
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    .page-phase-num {
+      font-size: 11px;
+      color: #3b82f6;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .page-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 8px;
+    }
+
+    .page-desc {
+      font-size: 14px;
+      color: #888;
+      margin-top: 8px;
+      line-height: 1.6;
+    }
+
+    .page-progress-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .page-progress-bar {
+      flex: 1;
+      height: 6px;
+      background: #2a2a2a;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .page-progress-fill {
+      height: 100%;
+      background: #3b82f6;
+      border-radius: 3px;
+      transition: width 0.3s;
+    }
+
+    .page-progress-text {
+      font-size: 12px;
+      color: #555;
+      white-space: nowrap;
+    }
+
+    /* 스텝 */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .step {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.15s;
+    }
+
+    .step.completed { border-color: #1a4731; }
+    .step.current { border-color: #1e3a5f; }
+
+    .step-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 18px 20px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .step-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid #3a3a3a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+      transition: all 0.15s;
+      cursor: pointer;
+    }
+
+    .step.completed .step-check {
+      background: #22c55e;
+      border-color: #22c55e;
+    }
+
+    .step-check-icon {
+      display: none;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .step.completed .step-check-icon { display: block; }
+
+    .step-info {
+      flex: 1;
+    }
+
+    .step-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e0e0e0;
+      line-height: 1.4;
+    }
+
+    .step.completed .step-title { color: #666; text-decoration: line-through; }
+
+    .step-subtitle {
+      font-size: 12px;
+      color: #555;
+      margin-top: 3px;
+    }
+
+    .step-expand {
+      color: #555;
+      font-size: 12px;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .step-body {
+      display: none;
+      padding: 0 20px 20px 56px;
+    }
+
+    .step-body.open { display: block; }
+
+    /* 인스트럭션 */
+    .instruction-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .instruction-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .instruction-num {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #252525;
+      color: #888;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .instruction-text {
+      font-size: 13px;
+      color: #bbb;
+      line-height: 1.6;
+    }
+
+    .instruction-text code {
+      background: #252525;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: 'Consolas', monospace;
+      font-size: 12px;
+      color: #60a5fa;
+    }
+
+    .instruction-text strong {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* 코드 블록 */
+    .code-block {
+      background: #111;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 12px 0;
+      font-family: 'Consolas', monospace;
+      font-size: 12px;
+      color: #a0c4ff;
+      line-height: 1.7;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    /* 경고/팁 박스 */
+    .tip-box {
+      background: #1a2a1a;
+      border: 1px solid #2a4a2a;
+      border-left: 3px solid #22c55e;
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin: 12px 0;
+      font-size: 13px;
+      color: #86efac;
+      line-height: 1.6;
+    }
+
+    .warn-box {
+      background: #2a1a1a;
+      border: 1px solid #4a2a2a;
+      border-left: 3px solid #ef4444;
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin: 12px 0;
+      font-size: 13px;
+      color: #fca5a5;
+      line-height: 1.6;
+    }
+
+    .info-box {
+      background: #1a1e2a;
+      border: 1px solid #2a3a5a;
+      border-left: 3px solid #3b82f6;
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin: 12px 0;
+      font-size: 13px;
+      color: #93c5fd;
+      line-height: 1.6;
+    }
+
+    /* 통과 기준 */
+    .pass-criteria {
+      background: #1a1e2a;
+      border: 1px solid #2a3a5a;
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-top: 24px;
+    }
+
+    .pass-criteria-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #60a5fa;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .criteria-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .criteria-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 13px;
+      color: #93c5fd;
+      line-height: 1.5;
+    }
+
+    .criteria-item::before {
+      content: '→';
+      color: #3b82f6;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* 완료 버튼 */
+    .complete-phase-btn {
+      display: block;
+      width: 100%;
+      margin-top: 28px;
+      padding: 14px;
+      background: #1e3a5f;
+      border: 1px solid #2a5a9f;
+      border-radius: 10px;
+      color: #60a5fa;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      text-align: center;
+    }
+
+    .complete-phase-btn:hover { background: #254d80; }
+    .complete-phase-btn:disabled {
+      background: #1a4731;
+      border-color: #1a4731;
+      color: #4ade80;
+      cursor: default;
+    }
+
+    /* 반복 카운터 */
+    .repeat-counter {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .repeat-label {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .repeat-dots {
+      display: flex;
+      gap: 5px;
+    }
+
+    .repeat-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+
+    .repeat-dot.filled { background: #3b82f6; border-color: #3b82f6; }
+
+    /* 시나리오 탭 */
+    .scenario-tabs {
+      display: flex;
+      gap: 6px;
+      margin: 12px 0 8px;
+    }
+
+    .scenario-tab {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid #2a2a2a;
+      background: #1a1a1a;
+      color: #666;
+      transition: all 0.15s;
+    }
+
+    .scenario-tab.active {
+      background: #1e3a5f;
+      border-color: #2a5a9f;
+      color: #60a5fa;
+    }
+
+    .scenario-content { display: none; }
+    .scenario-content.active { display: block; }
+
+    /* 반응형 */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- 사이드바 -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h1>AI 실무 커리큘럼</h1>
+      <p>신입사원 온보딩</p>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav"></nav>
+  </aside>
+
+  <!-- 메인 -->
+  <main class="main">
+
+    <!-- 대시보드 -->
+    <div class="dashboard visible" id="dashboard">
+      <div class="dash-header">
+        <h2>전체 커리큘럼</h2>
+        <p>단계별로 완료하면서 진행하세요. 막히면 Claude Code에 에러 메시지를 그대로 붙여넣으세요.</p>
+      </div>
+      <div class="phase-cards" id="phaseCards"></div>
+    </div>
+
+    <!-- 페이지들 -->
+    <div id="pages"></div>
+
+  </main>
+</div>
+
+<script>
+const PHASES = [
+  {
+    id: 'phase0',
+    num: 'Phase 0',
+    title: '환경 세팅',
+    desc: 'VSCode, Claude Code, Python 설치',
+    duration: '1~2일',
+    steps: [
+      {
+        id: 'p0s1',
+        title: 'VSCode 설치',
+        subtitle: '코드 편집기',
+        instructions: [
+          '구글에 <strong>"VSCode 다운로드"</strong> 검색',
+          '파란 버튼 <strong>"Download for Windows"</strong> 클릭',
+          '다운로드된 파일 더블클릭 → 설치 창 열림',
+          '<strong>Next 계속 누르기</strong> → Install 클릭',
+          '설치 완료 후 <strong>VSCode 실행</strong> — 파란 아이콘 화면 뜨면 성공',
+        ],
+        pass: 'VSCode 실행했을 때 파란 시작 화면이 뜬다',
+      },
+      {
+        id: 'p0s2',
+        title: 'Claude Code (VSCode 확장) 설치',
+        subtitle: 'AI 코딩 도우미',
+        instructions: [
+          'VSCode 왼쪽 사이드바에서 <strong>네모 4개 아이콘</strong> 클릭 (Extensions)',
+          '검색창에 <strong>"Claude"</strong> 입력',
+          'Anthropic이 만든 <strong>"Claude"</strong> 항목 클릭',
+          '<strong>Install</strong> 버튼 클릭',
+          '설치 완료 후 왼쪽에 Claude 아이콘 생기는지 확인',
+        ],
+        pass: '왼쪽 사이드바에 Claude 아이콘이 보인다',
+      },
+      {
+        id: 'p0s3',
+        title: 'Node.js 설치',
+        subtitle: '터미널 명령어 실행에 필요',
+        instructions: [
+          '구글에 <strong>"Node.js 다운로드"</strong> 검색',
+          '<strong>"LTS"</strong> 버전 다운로드 클릭 (안정 버전)',
+          '설치 파일 더블클릭 → Next 계속 → Install',
+          'VSCode에서 터미널 열기: 상단 메뉴 <strong>Terminal → New Terminal</strong>',
+          '터미널에 <code>node -v</code> 입력 → Enter',
+          '<strong>v20.x.x</strong> 같은 버전 숫자 나오면 성공',
+        ],
+        pass: '터미널에 node -v 쳤을 때 버전 숫자가 나온다',
+        warn: '숫자 대신 에러가 나오면 컴퓨터 껐다 켜고 다시 시도',
+      },
+      {
+        id: 'p0s4',
+        title: 'Python 설치',
+        subtitle: '크롤링, OCR에 필요',
+        instructions: [
+          '구글에 <strong>"Python 다운로드"</strong> 검색',
+          '노란 버튼 <strong>"Download Python 3.x.x"</strong> 클릭',
+          '설치 파일 실행 — <strong style="color:#fca5a5">⚠️ 맨 아래 "Add Python to PATH" 체크박스 반드시 체크</strong>',
+          '<strong>Install Now</strong> 클릭',
+          '터미널에 <code>python --version</code> 입력 → Enter',
+          '<strong>Python 3.x.x</strong> 나오면 성공',
+        ],
+        pass: '터미널에 python --version 쳤을 때 Python 3.x.x가 나온다',
+        warn: '"Add Python to PATH" 체크 안 하면 안됨. 체크 빠뜨렸으면 Python 다시 설치',
+      },
+    ],
+  },
+  {
+    id: 'phase1',
+    num: 'Phase 1',
+    title: '터미널 + 폴더 개념',
+    desc: '명령어 5개, 폴더 트리 이해',
+    duration: '2~3일',
+    steps: [
+      {
+        id: 'p1s1',
+        title: '터미널이 뭔지 이해하기',
+        subtitle: '검은 창 = 컴퓨터에 명령 내리는 곳',
+        instructions: [
+          'VSCode 상단 메뉴 <strong>Terminal</strong> 클릭',
+          '<strong>New Terminal</strong> 클릭',
+          '화면 하단에 <strong>검은 창</strong>이 뜨면 성공',
+          '이 검은 창 = <strong>터미널</strong>. 여기에 명령어를 타이핑하면 컴퓨터가 실행한다',
+        ],
+        tip: '터미널은 마우스 클릭 없이 키보드로만 컴퓨터를 조작하는 창이다',
+      },
+      {
+        id: 'p1s2',
+        title: '폴더 트리 개념 이해하기',
+        subtitle: '폴더 안에 폴더, 폴더 안에 파일',
+        instructions: [
+          '탐색기(파일 탐색기)를 열어보면 폴더 구조가 보인다',
+          '<strong>C드라이브 → Users → 내이름 → Documents</strong> 이런 식으로 들어간다',
+          '터미널도 항상 "지금 어느 폴더 안에 있는지"가 중요하다',
+          '터미널의 현재 위치 = 탐색기에서 지금 열려있는 폴더',
+        ],
+        codeBlock: 'C:/\n  Users/\n    내이름/          ← 사용자 폴더\n      Documents/     ← 문서 폴더\n        ai-실습/     ← 내가 만들 폴더\n          파일.py\n          파일.xlsx',
+      },
+      {
+        id: 'p1s3',
+        title: '필수 명령어 5개 외우기',
+        subtitle: 'pwd / ls / cd / cd .. / mkdir',
+        instructions: [
+          '<code>pwd</code> — 지금 어디 있는지 확인 (Print Working Directory)',
+          '<code>ls</code> — 현재 폴더 안에 뭐가 있는지 보기',
+          '<code>cd 폴더이름</code> — 그 폴더 안으로 이동 (예: <code>cd Documents</code>)',
+          '<code>cd ..</code> — 한 단계 위 폴더로 이동',
+          '<code>mkdir 폴더이름</code> — 새 폴더 만들기 (예: <code>mkdir ai-실습</code>)',
+        ],
+        tip: '명령어 치고 Enter 눌러야 실행된다',
+      },
+      {
+        id: 'p1s4',
+        title: '실습: 명령어 10회 반복',
+        subtitle: '직접 쳐보면서 손에 익히기',
+        instructions: [
+          '터미널 열기',
+          '<code>pwd</code> 입력 → 현재 위치 확인',
+          '<code>cd Documents</code> 입력 → Documents로 이동',
+          '<code>pwd</code> 다시 입력 → 위치 바뀐 것 확인',
+          '<code>mkdir ai-실습</code> 입력 → 폴더 생성',
+          '<code>ls</code> 입력 → <strong>ai-실습</strong> 폴더 보이는지 확인',
+          '<code>cd ai-실습</code> 입력 → 폴더 안으로 이동',
+          '<code>pwd</code> 입력 → 현재 위치 확인',
+          '<code>cd ..</code> 입력 → 한 단계 위로',
+          '<code>pwd</code> 입력 → Documents로 돌아왔는지 확인',
+        ],
+        repeat: 10,
+        warn: '10번 반복. 막히면 처음부터. 손에서 자동으로 나올 때까지',
+        pass: '보지 않고 혼자서 10번 순서대로 칠 수 있다',
+      },
+      {
+        id: 'p1s5',
+        title: 'VSCode에서 폴더 열기',
+        subtitle: '왼쪽 사이드바에 폴더 내용 보이게 하기',
+        instructions: [
+          'VSCode 상단 메뉴 <strong>File</strong> 클릭',
+          '<strong>Open Folder</strong> 클릭',
+          '아까 만든 <strong>ai-실습</strong> 폴더 선택',
+          '<strong>폴더 선택</strong> 또는 <strong>Open</strong> 클릭',
+          '왼쪽 사이드바에 폴더 내용이 보이면 성공',
+        ],
+        pass: 'VSCode 왼쪽에 ai-실습 폴더 내용이 보인다',
+      },
+    ],
+  },
+  {
+    id: 'phase2',
+    num: 'Phase 2',
+    title: 'Claude Code 기본',
+    desc: 'AI에게 파일 만들게 시키기',
+    duration: '2~3일',
+    steps: [
+      {
+        id: 'p2s1',
+        title: 'Claude Code가 뭔지 이해하기',
+        subtitle: '웹 Claude와 다른 점',
+        instructions: [
+          '웹 Claude (claude.ai) — 대화만 가능, 내 컴퓨터 파일 못 만짐',
+          'Claude Code — <strong>터미널에서 실행</strong>, 내 컴퓨터 파일을 직접 읽고 쓰고 실행',
+          'Claude Code = AI가 내 컴퓨터 안에서 일하는 것',
+          '파일 만들기, 코드 짜기, 코드 실행까지 다 시킬 수 있다',
+        ],
+        tip: 'Claude Code는 VSCode 안에서 쓸 수도 있고, 터미널에서 직접 쓸 수도 있다',
+      },
+      {
+        id: 'p2s2',
+        title: 'Claude Code 처음 실행하기',
+        subtitle: 'VSCode에서 시작',
+        instructions: [
+          'VSCode에서 ai-실습 폴더가 열려있는지 확인',
+          '왼쪽 사이드바에서 <strong>Claude 아이콘</strong> 클릭',
+          'Claude 패널이 열리면 성공',
+          '로그인 필요하면 Anthropic 계정으로 로그인',
+        ],
+        pass: 'Claude 패널이 열리고 대화창이 보인다',
+      },
+      {
+        id: 'p2s3',
+        title: '첫 번째 명령: 파일 목록 물어보기',
+        subtitle: 'AI가 내 폴더를 직접 본다',
+        instructions: [
+          'Claude Code 대화창에 아래 내용 입력',
+          '<strong>Enter</strong> 눌러서 전송',
+          'Claude가 현재 폴더 안의 파일 목록을 보고 답한다',
+        ],
+        codeBlock: '"지금 이 폴더에 있는 파일 목록을 알려주세요"',
+        pass: 'Claude가 폴더 내용을 직접 확인해서 답해준다',
+      },
+      {
+        id: 'p2s4',
+        title: '파일 만들어보기',
+        subtitle: 'AI가 직접 파일을 생성한다',
+        instructions: [
+          'Claude Code에 아래 내용 입력',
+          'Claude가 test.txt 파일을 직접 만든다',
+          'VSCode 왼쪽 사이드바에 <strong>test.txt</strong>가 생기면 성공',
+          'test.txt 클릭 → 오른쪽에 내용이 보이면 완료',
+        ],
+        codeBlock: '"test.txt 파일을 만들고 안에 \'첫 번째 파일입니다\' 라고 써주세요"',
+        pass: 'VSCode 사이드바에 test.txt가 생기고, 내용이 들어있다',
+      },
+      {
+        id: 'p2s5',
+        title: 'Python 파일 만들고 실행시키기',
+        subtitle: '코드 짜고 돌리기',
+        instructions: [
+          'Claude Code에 아래 내용 입력',
+          'Claude가 hello.py 파일을 만든다',
+          'Claude Code에 <strong>"hello.py 실행해주세요"</strong> 입력',
+          '터미널에 <strong>안녕하세요</strong>가 출력되면 성공',
+        ],
+        codeBlock: '"hello.py 파일 만들고 안에 print(\'안녕하세요\') 코드 넣어주세요"',
+        pass: '터미널에 "안녕하세요"가 출력된다',
+      },
+    ],
+  },
+  {
+    id: 'phase3',
+    num: 'Phase 3',
+    title: '실전 A: 크롤링 → 엑셀',
+    desc: '웹 데이터 수집해서 엑셀로 정리',
+    duration: '1~2주',
+    steps: [
+      {
+        id: 'p3s1',
+        title: '크롤링이 뭔지 이해하기',
+        subtitle: '웹에서 데이터를 자동으로 가져오는 것',
+        instructions: [
+          '크롤링 = 웹사이트에서 데이터를 자동으로 긁어오는 것',
+          '예: 쇼핑몰 상품명+가격 100개를 손으로 복사 → 5시간',
+          '크롤링으로 자동화 → 5분',
+          '단, <strong>보안이 걸린 사이트</strong>는 막힌다 — 이때는 대안이 있다',
+        ],
+        tip: '크롤링 방법은 3가지다. 막히면 다음 방법으로 넘어가면 된다',
+      },
+      {
+        id: 'p3s2',
+        title: '방법 3가지 이해하기',
+        subtitle: 'API → DOM → 수동 순서로 시도',
+        instructions: [
+          '<strong>방법 1: API</strong> — 사이트가 데이터를 직접 제공하면 가장 쉽고 안정적',
+          '<strong>방법 2: DOM 파싱</strong> — HTML에서 원하는 부분만 추출 (보안 없으면 됨)',
+          '<strong>방법 3: 수동 복붙</strong> — 자동화 안되면 직접 복사해서 Claude한테 정리 요청',
+          '막혔을 때 에러 메시지를 Claude에게 보여주고 "어떻게 해요?" 물어보면 된다',
+        ],
+        info: '팅기는 경험 자체가 학습이다. 에러 보는 법, 대안 찾는 법을 익힌다',
+      },
+      {
+        id: 'p3s3',
+        title: '실습: 네이버 뉴스 제목 수집',
+        subtitle: '뉴스 제목 10개 → 엑셀',
+        instructions: [
+          'Claude Code에 아래 내용을 그대로 입력',
+          '성공하면 news.xlsx 파일이 생긴다',
+          'news.xlsx 더블클릭 → 엑셀로 열어서 데이터 확인',
+        ],
+        codeBlock: '"네이버 뉴스 메인에서 뉴스 제목 10개를 가져와서\nnews.xlsx 파일에 정리해주세요.\nAPI 방식으로 먼저 시도하고 안되면 requests로 HTML 파싱해주세요"',
+        scenarios: [
+          {
+            label: '✅ 성공',
+            content: 'news.xlsx 파일이 생겼다 → 파일 열어서 데이터 들어있는지 확인',
+          },
+          {
+            label: '🔒 보안 막힘',
+            content: '에러 메시지에 403, Forbidden, 연결 거부 등이 보임\n→ Claude Code에 입력: "보안 때문에 막혔어요. DOM 방식으로 바꿔주세요"',
+          },
+          {
+            label: '❌ 계속 안됨',
+            content: '→ Claude Code에 입력: "자동화가 안되네요. 수동으로 복사할게요. 복사한 텍스트를 엑셀로 정리하는 코드 짜주세요"\n→ 네이버 뉴스 페이지 열기 → 뉴스 제목들 드래그해서 복사\n→ Claude Code에 붙여넣고 정리 요청',
+          },
+        ],
+        pass: '어떤 방법이든 news.xlsx에 뉴스 제목이 들어있다',
+      },
+      {
+        id: 'p3s4',
+        title: '실전 미션 1: 쇼핑몰 가격 수집',
+        subtitle: '상품명 + 가격 20개 → 엑셀',
+        instructions: [
+          '원하는 쇼핑몰 하나 정하기 (쿠팡, 11번가 등)',
+          'Claude Code에 수집할 카테고리와 개수 말하기',
+          'API → DOM → 수동 순서로 시도',
+          '결과 엑셀 파일 열어서 확인',
+        ],
+        codeBlock: '"[쇼핑몰] [카테고리] 상품명이랑 가격 20개 수집해서\nproducts.xlsx에 정리해주세요"',
+        repeat: 3,
+        pass: 'products.xlsx에 상품명과 가격이 20개 들어있다',
+      },
+      {
+        id: 'p3s5',
+        title: '실전 미션 2: 자유 주제 수집',
+        subtitle: '원하는 사이트에서 원하는 데이터',
+        instructions: [
+          '수집하고 싶은 데이터 직접 정하기',
+          'Claude Code에 어떤 사이트에서 뭘 수집할지 말하기',
+          '막히면 방법 바꿔가면서 시도',
+          '엑셀로 결과 확인',
+        ],
+        pass: '스스로 주제를 정하고 데이터를 수집해서 엑셀로 만든다',
+      },
+    ],
+  },
+  {
+    id: 'phase4',
+    num: 'Phase 4',
+    title: '실전 B: OCR → 파일정리',
+    desc: '사진에서 텍스트 추출해서 정리',
+    duration: '1주',
+    steps: [
+      {
+        id: 'p4s1',
+        title: 'OCR이 뭔지 이해하기',
+        subtitle: '사진 안의 글자를 텍스트로 변환',
+        instructions: [
+          'OCR = 이미지/사진 안의 텍스트를 컴퓨터가 읽을 수 있는 텍스트로 변환',
+          '예: 명함 사진 → 이름, 전화번호, 이메일 자동 추출',
+          '예: 영수증 사진 → 항목, 금액 자동 추출',
+          '손으로 타이핑하던 것을 자동화',
+        ],
+      },
+      {
+        id: 'p4s2',
+        title: '실습 준비: 사진 파일 폴더에 넣기',
+        subtitle: '파일 탐색기로 복사하기',
+        instructions: [
+          '명함, 영수증, 문서 사진 중 하나 준비',
+          '<strong>파일 탐색기</strong> 열기 (윈도우키 + E)',
+          '사진 파일 찾기 → <strong>오른쪽 클릭 → 복사</strong>',
+          '탐색기에서 <strong>Documents → ai-실습</strong> 폴더 열기',
+          '빈 공간에 <strong>오른쪽 클릭 → 붙여넣기</strong>',
+          'VSCode 왼쪽 사이드바에서 파일이 보이면 성공',
+        ],
+        pass: 'VSCode 사이드바에 사진 파일이 보인다',
+      },
+      {
+        id: 'p4s3',
+        title: 'OCR 실행하기',
+        subtitle: 'Claude Code에게 텍스트 추출 요청',
+        instructions: [
+          'Claude Code에 아래 내용 입력 (파일명은 실제 파일명으로 바꾸기)',
+          '결과 파일이 생성되면 열어서 확인',
+          '잘못 읽은 부분이 있으면 수정 요청',
+        ],
+        codeBlock: '"[파일명.jpg] 파일에서 텍스트를 읽어주세요.\n읽어낸 텍스트를 result.xlsx 파일에 정리해주세요."',
+        pass: 'result.xlsx에 사진 안의 텍스트가 정리되어 있다',
+      },
+      {
+        id: 'p4s4',
+        title: '결과 수정하기',
+        subtitle: '틀린 부분 Claude에게 고치게 하기',
+        instructions: [
+          'result.xlsx 열어서 내용 확인',
+          '잘못 읽은 부분 찾기',
+          'Claude Code에 수정 요청',
+          '다시 열어서 확인',
+        ],
+        codeBlock: '"3번째 행의 전화번호가 틀렸어요. 010-1234-5678로 수정해주세요"',
+        tip: '틀린 곳이 있어도 괜찮다. 수정 요청하는 것도 실력이다',
+      },
+      {
+        id: 'p4s5',
+        title: '실전 미션: 사진 5장 → 엑셀',
+        subtitle: '명함 또는 영수증 여러 장 한번에',
+        instructions: [
+          '사진 5장 ai-실습 폴더에 넣기',
+          'Claude Code에 한번에 처리 요청',
+          '결과 확인 + 틀린 부분 수정',
+        ],
+        codeBlock: '"폴더에 있는 사진 파일들에서 텍스트를 전부 읽어서\n각각 이름, 전화번호, 이메일로 정리해서 contacts.xlsx로 만들어주세요"',
+        repeat: 3,
+        pass: 'contacts.xlsx에 5장의 사진 정보가 모두 정리되어 있다',
+      },
+    ],
+  },
+];
+
+// 상태 관리
+let state = JSON.parse(localStorage.getItem('curriculum-state') || '{}');
+let currentPage = 'dashboard';
+let expandedSteps = {};
+
+function saveState() {
+  localStorage.setItem('curriculum-state', JSON.stringify(state));
+}
+
+function isStepDone(stepId) {
+  return !!state[stepId];
+}
+
+function toggleStep(stepId) {
+  state[stepId] = !state[stepId];
+  saveState();
+  render();
+}
+
+function getPhaseProgress(phase) {
+  const done = phase.steps.filter(s => isStepDone(s.id)).length;
+  return { done, total: phase.steps.length, pct: Math.round(done / phase.steps.length * 100) };
+}
+
+function getTotalProgress() {
+  const allSteps = PHASES.flatMap(p => p.steps);
+  const done = allSteps.filter(s => isStepDone(s.id)).length;
+  return { done, total: allSteps.length };
+}
+
+function navigate(pageId) {
+  currentPage = pageId;
+  render();
+  window.scrollTo(0, 0);
+}
+
+// 렌더링
+function render() {
+  renderSidebar();
+  renderDashboard();
+  renderPages();
+}
+
+function renderSidebar() {
+  const nav = document.getElementById('sidebarNav');
+  nav.innerHTML = `
+    <div class="phase-group">
+      <button class="phase-btn ${currentPage === 'dashboard' ? 'active' : ''}" onclick="navigate('dashboard')">
+        <div class="phase-icon ${currentPage === 'dashboard' ? 'active-icon' : 'locked'}">☰</div>
+        <div class="phase-label">
+          <div class="phase-label-title">전체 대시보드</div>
+          <div class="phase-label-sub">${getTotalProgress().done}/${getTotalProgress().total} 완료</div>
+        </div>
+      </button>
+    </div>
+    ${PHASES.map(phase => {
+      const prog = getPhaseProgress(phase);
+      const isDone = prog.done === prog.total;
+      const isActive = currentPage === phase.id;
+      return `
+        <div class="phase-group">
+          <button class="phase-btn ${isActive ? 'active' : ''}" onclick="navigate('${phase.id}')">
+            <div class="phase-icon ${isDone ? 'done' : isActive ? 'active-icon' : 'locked'}">
+              ${isDone ? '✓' : phase.num.replace('Phase ', '')}
+            </div>
+            <div class="phase-label">
+              <div class="phase-label-title">${phase.title}</div>
+              <div class="phase-label-sub">${prog.done}/${prog.total} · ${phase.duration}</div>
+            </div>
+          </button>
+          <div style="padding: 0 20px 8px;">
+            <div class="phase-progress-bar">
+              <div class="phase-progress-fill" style="width:${prog.pct}%"></div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('')}
+  `;
+}
+
+function renderDashboard() {
+  const dash = document.getElementById('dashboard');
+  dash.className = 'dashboard' + (currentPage === 'dashboard' ? ' visible' : '');
+
+  const cards = document.getElementById('phaseCards');
+  cards.innerHTML = PHASES.map(phase => {
+    const prog = getPhaseProgress(phase);
+    return `
+      <div class="phase-card ${prog.done === prog.total ? 'completed' : ''}" onclick="navigate('${phase.id}')">
+        <div class="card-phase-num">${phase.num} · ${phase.duration}</div>
+        <div class="card-title">${phase.title}</div>
+        <div class="card-desc">${phase.desc}</div>
+        <div class="card-progress">
+          <div class="card-progress-bar">
+            <div class="card-progress-fill" style="width:${prog.pct}%"></div>
+          </div>
+          <div class="card-progress-text">${prog.done}/${prog.total} 단계 완료</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderPages() {
+  const container = document.getElementById('pages');
+  container.innerHTML = PHASES.map(phase => {
+    const prog = getPhaseProgress(phase);
+    const isVisible = currentPage === phase.id;
+    return `
+      <div class="page ${isVisible ? 'visible' : ''}" id="page-${phase.id}">
+        <div class="page-header">
+          <div class="page-phase-num">${phase.num}</div>
+          <div class="page-title">${phase.title}</div>
+          <div class="page-desc">${phase.desc} · ${phase.duration}</div>
+          <div class="page-progress-row">
+            <div class="page-progress-bar">
+              <div class="page-progress-fill" style="width:${prog.pct}%"></div>
+            </div>
+            <div class="page-progress-text">${prog.done}/${prog.total}</div>
+          </div>
+        </div>
+        <div class="steps">
+          ${phase.steps.map((step, idx) => renderStep(step, idx)).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderStep(step, idx) {
+  const done = isStepDone(step.id);
+  const expanded = !!expandedSteps[step.id];
+  let cls = '';
+  if (done) cls = 'completed';
+  else if (expanded) cls = 'current';
+
+  return `
+    <div class="step ${cls}" id="step-${step.id}">
+      <div class="step-header" onclick="toggleExpand('${step.id}')">
+        <div class="step-check" onclick="event.stopPropagation(); toggleStep('${step.id}')">
+          <span class="step-check-icon">✓</span>
+        </div>
+        <div class="step-info">
+          <div class="step-title">${idx + 1}. ${step.title}</div>
+          <div class="step-subtitle">${step.subtitle}</div>
+        </div>
+        <div class="step-expand">${expanded ? '▲' : '▼'}</div>
+      </div>
+      <div class="step-body ${expanded ? 'open' : ''}">
+        ${renderStepBody(step)}
+        <div style="margin-top:16px;">
+          <button style="background:#1a2a3a;border:1px solid #2a4a6a;border-radius:8px;color:#60a5fa;font-size:13px;font-weight:600;padding:10px 16px;cursor:pointer;width:100%;" onclick="toggleStep('${step.id}')">
+            ${done ? '✓ 완료됨 (취소하려면 클릭)' : '✓ 이 단계 완료'}
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderStepBody(step) {
+  let html = '';
+
+  if (step.instructions) {
+    html += `<ol class="instruction-list">`;
+    step.instructions.forEach((ins, i) => {
+      html += `<li class="instruction-item">
+        <span class="instruction-num">${i + 1}</span>
+        <span class="instruction-text">${ins}</span>
+      </li>`;
+    });
+    html += `</ol>`;
+  }
+
+  if (step.codeBlock) {
+    html += `<div class="code-block">${escapeHtml(step.codeBlock)}</div>`;
+  }
+
+  if (step.scenarios) {
+    html += `<div class="scenario-tabs">`;
+    step.scenarios.forEach((s, i) => {
+      html += `<button class="scenario-tab ${i === 0 ? 'active' : ''}" onclick="switchScenario(this, '${step.id}-sc${i}')">${s.label}</button>`;
+    });
+    html += `</div>`;
+    step.scenarios.forEach((s, i) => {
+      html += `<div class="scenario-content ${i === 0 ? 'active' : ''}" id="${step.id}-sc${i}">
+        <div class="code-block">${escapeHtml(s.content)}</div>
+      </div>`;
+    });
+  }
+
+  if (step.tip) html += `<div class="tip-box">💡 ${step.tip}</div>`;
+  if (step.warn) html += `<div class="warn-box">⚠️ ${step.warn}</div>`;
+  if (step.info) html += `<div class="info-box">ℹ️ ${step.info}</div>`;
+
+  if (step.repeat) {
+    const repKey = step.id + '-rep';
+    const repCount = parseInt(state[repKey] || '0');
+    html += `<div class="repeat-counter">
+      <span class="repeat-label">반복 횟수:</span>
+      <div class="repeat-dots">
+        ${Array.from({length: step.repeat}, (_, i) => `
+          <div class="repeat-dot ${i < repCount ? 'filled' : ''}" onclick="setRepeat('${step.id}', ${i + 1})"></div>
+        `).join('')}
+      </div>
+      <span style="font-size:11px;color:#555;">${repCount}/${step.repeat}</span>
+    </div>`;
+  }
+
+  if (step.pass) {
+    html += `<div class="pass-criteria">
+      <div class="pass-criteria-title">✅ 통과 기준</div>
+      <ul class="criteria-list">
+        <li class="criteria-item">${step.pass}</li>
+      </ul>
+    </div>`;
+  }
+
+  return html;
+}
+
+function toggleExpand(stepId) {
+  expandedSteps[stepId] = !expandedSteps[stepId];
+  render();
+}
+
+function setRepeat(stepId, count) {
+  state[stepId + '-rep'] = String(count);
+  saveState();
+  render();
+}
+
+function switchScenario(btn, targetId) {
+  const tabs = btn.parentElement.querySelectorAll('.scenario-tab');
+  tabs.forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+
+  const prefix = targetId.split('-sc')[0];
+  document.querySelectorAll(`[id^="${prefix}-sc"]`).forEach(el => el.classList.remove('active'));
+  document.getElementById(targetId).classList.add('active');
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// 초기 렌더
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 1 실습 — 사진 → 엑셀 변환</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 20px;
+      padding: 36px 40px;
+      color: white;
+      margin-bottom: 32px;
+    }
+    .header .day-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .header p {
+      font-size: 15px;
+      opacity: 0.85;
+    }
+
+    /* Progress bar */
+    .progress-wrap {
+      background: white;
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #555;
+    }
+    .progress-bar-bg {
+      background: #e8eaf0;
+      border-radius: 99px;
+      height: 10px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+      height: 100%;
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    /* Step card */
+    .step-card {
+      background: white;
+      border-radius: 16px;
+      padding: 28px 32px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      border-left: 4px solid #e0e0e0;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .step-card.active {
+      border-left-color: #6366f1;
+      box-shadow: 0 4px 20px rgba(99,102,241,0.12);
+    }
+    .step-card.done {
+      border-left-color: #22c55e;
+      opacity: 0.75;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .step-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #f0f2f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: #6366f1;
+      flex-shrink: 0;
+    }
+    .step-card.done .step-num {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+    .step-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    /* Instruction list */
+    .instruction-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .instruction-list li {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #333;
+    }
+    .instruction-list li .num {
+      background: #ede9fe;
+      color: #6366f1;
+      border-radius: 6px;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Confirm box */
+    .confirm-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 14px;
+      color: #15803d;
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .confirm-box::before { content: '✅'; }
+
+    /* Code block */
+    .code-block {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      border-radius: 10px;
+      padding: 16px 20px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      margin-top: 14px;
+      position: relative;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 6px;
+      color: #cdd6f4;
+      font-size: 12px;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,0.2); }
+    .copy-btn.copied { color: #a6e3a1; }
+
+    /* Backup section */
+    .backup-section {
+      background: white;
+      border-radius: 16px;
+      padding: 28px 32px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      border-left: 4px solid #f59e0b;
+    }
+    .backup-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #92400e;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .backup-case {
+      margin-bottom: 18px;
+    }
+    .backup-case:last-child { margin-bottom: 0; }
+    .backup-case-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #555;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .backup-case-title .tag {
+      background: #fef3c7;
+      color: #92400e;
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 12px;
+    }
+    .backup-case p {
+      font-size: 14px;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    /* Checklist */
+    .checklist-section {
+      background: white;
+      border-radius: 16px;
+      padding: 28px 32px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .checklist-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 16px;
+    }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      user-select: none;
+    }
+    .check-item:last-child { border-bottom: none; }
+    .check-item input[type="checkbox"] { display: none; }
+    .check-box {
+      width: 22px;
+      height: 22px;
+      border: 2px solid #d0d0d0;
+      border-radius: 6px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .check-item.checked .check-box {
+      background: #22c55e;
+      border-color: #22c55e;
+    }
+    .check-item.checked .check-box::after { content: '✓'; color: white; font-size: 13px; font-weight: 700; }
+    .check-item.checked .check-text { text-decoration: line-through; color: #aaa; }
+    .check-text { font-size: 15px; color: #333; }
+
+    /* Complete banner */
+    .complete-banner {
+      display: none;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      border-radius: 16px;
+      padding: 28px 32px;
+      margin-top: 16px;
+      color: white;
+      text-align: center;
+    }
+    .complete-banner.show { display: block; }
+    .complete-banner .emoji { font-size: 40px; margin-bottom: 10px; }
+    .complete-banner h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    .complete-banner p { font-size: 15px; opacity: 0.9; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="day-badge">DAY 1</div>
+    <h1>사진 → 엑셀 변환</h1>
+    <p>VSCode + Claude로 이미지 속 텍스트를 엑셀 파일로 만들기</p>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>진행률</span>
+      <span id="progress-text">0 / 6 완료</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="step-card" id="card-1">
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <div class="step-title">작업 폴더 만들기</div>
+    </div>
+    <ul class="instruction-list">
+      <li><span class="num">1</span><span>바탕화면 빈 곳에서 <strong>오른쪽 클릭</strong></span></li>
+      <li><span class="num">2</span><span><strong>"새로 만들기"</strong> → <strong>"폴더"</strong> 클릭</span></li>
+      <li><span class="num">3</span><span>폴더 이름에 <strong>ai-작업</strong> 입력 → Enter</span></li>
+    </ul>
+    <div class="confirm-box">바탕화면에 <strong>ai-작업</strong> 폴더가 생겼으면 성공</div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="step-card" id="card-2">
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <div class="step-title">사진 파일 폴더에 넣기</div>
+    </div>
+    <ul class="instruction-list">
+      <li><span class="num">1</span><span>정리할 사진 파일 찾기 <span style="color:#888">(명함, 영수증, 문서 등)</span></span></li>
+      <li><span class="num">2</span><span>사진 파일 <strong>오른쪽 클릭</strong> → <strong>"복사"</strong></span></li>
+      <li><span class="num">3</span><span><strong>ai-작업</strong> 폴더 더블클릭으로 열기</span></li>
+      <li><span class="num">4</span><span>폴더 안 빈 곳 <strong>오른쪽 클릭</strong> → <strong>"붙여넣기"</strong></span></li>
+    </ul>
+    <div class="confirm-box">ai-작업 폴더 안에 사진 파일이 보이면 성공</div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step-card" id="card-3">
+    <div class="step-header">
+      <div class="step-num">3</div>
+      <div class="step-title">VSCode에서 폴더 열기</div>
+    </div>
+    <ul class="instruction-list">
+      <li><span class="num">1</span><span>VSCode 실행</span></li>
+      <li><span class="num">2</span><span>상단 메뉴 <strong>File</strong> 클릭</span></li>
+      <li><span class="num">3</span><span><strong>Open Folder</strong> 클릭</span></li>
+      <li><span class="num">4</span><span><strong>ai-작업</strong> 폴더 선택 → <strong>"폴더 선택"</strong> 버튼 클릭</span></li>
+    </ul>
+    <div class="confirm-box">VSCode 왼쪽 사이드바에 사진 파일 이름이 보이면 성공</div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="step-card" id="card-4">
+    <div class="step-header">
+      <div class="step-num">4</div>
+      <div class="step-title">Claude에 사진 첨부하기</div>
+    </div>
+    <ul class="instruction-list">
+      <li><span class="num">1</span><span>VSCode 왼쪽 사이드바에서 <strong>Claude 아이콘</strong> 클릭</span></li>
+      <li><span class="num">2</span><span>Claude 채팅창이 열리면 성공</span></li>
+      <li><span class="num">3</span><span>채팅창 하단 <strong>클립 아이콘(📎)</strong> 클릭 → 사진 파일 선택</span></li>
+    </ul>
+    <p style="font-size:13px;color:#888;margin-top:12px;padding-left:4px;">📌 클립 아이콘 없으면 — 사진 파일을 채팅창으로 <strong>드래그해서 끌어다 놓기</strong></p>
+    <div class="confirm-box">채팅창에 사진 미리보기가 뜨면 성공</div>
+  </div>
+
+  <!-- Step 5 -->
+  <div class="step-card" id="card-5">
+    <div class="step-header">
+      <div class="step-num">5</div>
+      <div class="step-title">Claude에게 요청하기</div>
+    </div>
+    <p style="font-size:15px;color:#444;margin-bottom:4px;">사진이 첨부된 상태에서 아래 문장을 <strong>복사해서 붙여넣기</strong></p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyPrompt(this)">복사</button>
+이 사진에서 텍스트를 전부 읽어줘.
+읽은 내용을 표 형식으로 정리해서
+result.xlsx 파일로 저장해줘.
+파일은 지금 열려있는 폴더(ai-작업)에 저장해줘.
+    </div>
+    <p style="font-size:13px;color:#888;margin-top:12px;padding-left:4px;">→ Enter 또는 전송 버튼 클릭</p>
+  </div>
+
+  <!-- Step 6 -->
+  <div class="step-card" id="card-6">
+    <div class="step-header">
+      <div class="step-num">6</div>
+      <div class="step-title">결과 확인</div>
+    </div>
+    <ul class="instruction-list">
+      <li><span class="num">1</span><span>VSCode 왼쪽 사이드바에 <strong>result.xlsx</strong> 파일이 생겼는지 확인</span></li>
+      <li><span class="num">2</span><span><strong>result.xlsx 더블클릭</strong> → 엑셀로 열림</span></li>
+      <li><span class="num">3</span><span>내용이 들어있으면 성공 🎉</span></li>
+    </ul>
+    <div class="confirm-box">엑셀 파일이 열리고 내용이 있으면 Day 1 완료</div>
+  </div>
+
+  <!-- Backup -->
+  <div class="backup-section">
+    <div class="backup-title">⚠️ 막혔을 때 대처법</div>
+
+    <div class="backup-case">
+      <div class="backup-case-title"><span class="tag">상황 A</span> 일부만 틀렸을 때</div>
+      <div class="code-block" style="margin-top:8px;">
+        <button class="copy-btn" onclick="copyPrompt(this)">복사</button>
+3번째 행의 전화번호가 틀렸어. 010-1234-5678로 수정해줘.
+      </div>
+    </div>
+
+    <div class="backup-case">
+      <div class="backup-case-title"><span class="tag">상황 B</span> 사진이 너무 흐려서 못 읽을 때</div>
+      <p>사진을 핸드폰으로 다시 찍기 (밝은 곳, 흔들리지 않게) → Step 4부터 다시</p>
+    </div>
+
+    <div class="backup-case">
+      <div class="backup-case-title"><span class="tag">상황 C</span> xlsx 저장이 안될 때</div>
+      <div class="code-block" style="margin-top:8px;">
+        <button class="copy-btn" onclick="copyPrompt(this)">복사</button>
+xlsx 저장이 안되면 csv 파일로 저장해줘. 파일 이름은 result.csv로.
+      </div>
+      <p style="font-size:13px;color:#888;margin-top:8px;">→ result.csv 더블클릭하면 엑셀로 열림</p>
+    </div>
+  </div>
+
+  <!-- Checklist -->
+  <div class="checklist-section" style="margin-top:16px;">
+    <div class="checklist-title">오늘 완료 체크리스트</div>
+
+    <label class="check-item" onclick="toggleCheck(this)">
+      <input type="checkbox">
+      <div class="check-box"></div>
+      <span class="check-text">ai-작업 폴더를 만들었다</span>
+    </label>
+    <label class="check-item" onclick="toggleCheck(this)">
+      <input type="checkbox">
+      <div class="check-box"></div>
+      <span class="check-text">사진 파일을 폴더에 넣었다</span>
+    </label>
+    <label class="check-item" onclick="toggleCheck(this)">
+      <input type="checkbox">
+      <div class="check-box"></div>
+      <span class="check-text">VSCode에서 폴더를 열었다</span>
+    </label>
+    <label class="check-item" onclick="toggleCheck(this)">
+      <input type="checkbox">
+      <div class="check-box"></div>
+      <span class="check-text">Claude가 사진 내용을 읽었다</span>
+    </label>
+    <label class="check-item" onclick="toggleCheck(this)">
+      <input type="checkbox">
+      <div class="check-box"></div>
+      <span class="check-text">result.xlsx (또는 .csv) 파일이 생겼다</span>
+    </label>
+    <label class="check-item" onclick="toggleCheck(this)">
+      <input type="checkbox">
+      <div class="check-box"></div>
+      <span class="check-text">파일을 열어서 내용을 확인했다</span>
+    </label>
+  </div>
+
+  <!-- Complete banner -->
+  <div class="complete-banner" id="complete-banner">
+    <div class="emoji">🎉</div>
+    <h2>Day 1 완료!</h2>
+    <p>사진을 엑셀로 바꾸는 법을 익혔어요.<br>내일은 웹에서 데이터 긁어오는 거 해볼게요.</p>
+  </div>
+
+</div>
+
+<script>
+  const TOTAL = 6;
+  let checked = 0;
+
+  function toggleCheck(el) {
+    el.classList.toggle('checked');
+    checked = document.querySelectorAll('.check-item.checked').length;
+    updateProgress();
+    if (checked === TOTAL) {
+      document.getElementById('complete-banner').classList.add('show');
+      document.getElementById('complete-banner').scrollIntoView({ behavior: 'smooth' });
+    } else {
+      document.getElementById('complete-banner').classList.remove('show');
+    }
+  }
+
+  function updateProgress() {
+    const pct = Math.round((checked / TOTAL) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-text').textContent = checked + ' / ' + TOTAL + ' 완료';
+  }
+
+  function copyPrompt(btn) {
+    const block = btn.parentElement;
+    const text = block.textContent.replace('복사', '').trim();
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '복사됨 ✓';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
